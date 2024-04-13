@@ -1,4 +1,5 @@
-import { CollectionAfterChangeHook } from 'payload/types'
+import { type AlgoliaSearchOptions } from 'algoliasearch'
+import { type CollectionAfterChangeHook } from 'payload/types'
 
 export interface SearchAttributes {
   [key: string]: any
@@ -6,11 +7,13 @@ export interface SearchAttributes {
 }
 
 export interface AlgoliaSearchConfig {
+  algolia: {
+    appId: string
+    apiKey: string
+    index: string
+    options?: AlgoliaSearchOptions
+  }
   collections?: string[]
-  // @TODO accept all algolia options
-  app_id: string
-  api_key: string
-  index: string
   generateSearchAttributes?: (
     args: Parameters<CollectionAfterChangeHook>[0],
   ) => SearchAttributes | Promise<SearchAttributes>

@@ -38,9 +38,11 @@ export default buildConfig({
   },
   plugins: [
     AlgoliaSearchPlugin({
-      app_id: process.env.ALGOLIA_APPLICATION_ID,
-      api_key: process.env.ALGOLIA_ADMIN_API_KEY,
-      index: process.env.ALGOLIA_INDEX,
+      algolia: {
+        appId: process.env.ALGOLIA_APPLICATION_ID,
+        apiKey: process.env.ALGOLIA_ADMIN_API_KEY,
+        index: process.env.ALGOLIA_INDEX,
+      },
       collections: ['examples', 'versioned_examples'],
     }),
   ],

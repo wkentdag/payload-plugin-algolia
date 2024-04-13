@@ -35,7 +35,7 @@ export default function syncWithSearch(
         return doc
       }
 
-      const searchClient = createClient(searchConfig)
+      const searchClient = createClient(searchConfig.algolia)
       const objectID = getObjectID({ collection, doc })
 
       // remove search results for unpublished docs

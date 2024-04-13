@@ -2,15 +2,11 @@ import algoliasearch from 'algoliasearch'
 
 import { AlgoliaSearchConfig } from './types'
 
-export default function createClient({
-  app_id,
-  api_key,
-  index,
-}: Pick<AlgoliaSearchConfig, 'api_key' | 'app_id' | 'index'>) {
-  if (!app_id || !api_key || !index) {
+export default function createClient({ appId, apiKey, options, index }: AlgoliaSearchConfig['algolia']) {
+  if (!appId || !apiKey || !index) {
     throw new Error(`[payload-plugin-algolia] missing required Algolia creds`)
   }
-  const client = algoliasearch(app_id, api_key)
+  const client = algoliasearch(appId, apiKey, options)
   const searchIndex = client.initIndex(index)
   return searchIndex
 }
