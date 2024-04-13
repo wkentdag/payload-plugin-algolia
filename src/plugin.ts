@@ -1,79 +1,48 @@
-import type { Config, Plugin } from 'payload/config'
+import type { Config } from 'payload/config'
 
 import { onInitExtension } from './onInitExtension'
-import type { PluginTypes } from './types'
-import { extendWebpackConfig } from './webpack'
-import AfterDashboard from './components/AfterDashboard'
-import newCollection from './newCollection'
+import type { AlgoliaSearchConfig } from './types'
+import syncWithSearch from './hooks/syncWithSearch'
+import deleteFromSearch from './hooks/deleteFromSearch'
 
-type PluginType = (pluginOptions: PluginTypes) => Plugin
+export const AlgoliaSearchPlugin =
+  (searchConfig: AlgoliaSearchConfig) =>
+  (config: Config): Config => {
+    const { collections } = config
 
-export const samplePlugin =
-  (pluginOptions: PluginTypes): Plugin =>
-    (incomingConfig) => {
-      let config = { ...incomingConfig }
+    if (collections) {
+      const enabledCollections = searchConfig.collections || []
 
-      // If you need to add a webpack alias, use this function to extend the webpack config
-      const webpack = extendWebpackConfig(incomingConfig)
+      const collectionsWithSearchHooks = collections
+        ?.map(collection => {
+          const { hooks: existingHooks } = collection
+          const isEnabled = enabledCollections.indexOf(collection.slug) > -1
 
-      config.admin = {
-        ...(config.admin || {}),
-        // If you extended the webpack config, add it back in here
-        // If you did not extend the webpack config, you can remove this line
-        webpack,
+          if (isEnabled) {
+            return {
+              ...collection,
+              hooks: {
+                ...collection.hooks,
+                afterChange: [...(existingHooks?.afterChange || []), syncWithSearch(searchConfig)],
+                afterDelete: [
+                  ...(existingHooks?.afterDelete || []),
+                  deleteFromSearch(searchConfig),
+                ],
+              },
+            }
+          }
 
-        // Add additional admin config here
+          return collection
+        })
+        .filter(Boolean)
 
-        components: {
-          ...(config.admin?.components || {}),
-          // Add additional admin components here
-          afterDashboard: [
-            ...(config.admin?.components?.afterDashboard || []),
-            AfterDashboard,
-          ],
-        },
+      // @TODO on init extension to set attributes / facets?
+
+      return {
+        ...config,
+        collections: [...(collectionsWithSearchHooks || [])],
       }
-
-      // If the plugin is disabled, return the config without modifying it
-      // The order of this check is important, we still want any webpack extensions to be applied even if the plugin is disabled
-      if (pluginOptions.enabled === false) {
-        return config
-      }
-
-      config.collections = [
-        ...(config.collections || []),
-        // Add additional collections here
-        newCollection, // delete this line to remove the example collection
-      ]
-
-      config.endpoints = [
-        ...(config.endpoints || []),
-        {
-          path: '/custom-endpoint',
-          method: 'get',
-          root: true,
-          handler: (req, res): void => {
-            res.json({ message: 'Here is a custom endpoint' });
-          },
-        },
-        // Add additional endpoints here
-      ]
-
-      config.globals = [
-        ...(config.globals || []),
-        // Add additional globals here
-      ]
-
-      config.hooks = {
-        ...(config.hooks || {}),
-        // Add additional hooks here
-      }
-
-      config.onInit = async payload => {
-        if (incomingConfig.onInit) await incomingConfig.onInit(payload)
-        // Add additional onInit code by using the onInitExtension function
-        onInitExtension(pluginOptions, payload)
-      }
-
-      return config
     }
+
+    return config
+  }
