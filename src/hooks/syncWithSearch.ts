@@ -3,48 +3,77 @@ import { CollectionAfterChangeHook } from 'payload/types'
 import createClient from '../algolia'
 import { AlgoliaSearchConfig } from '../types'
 
-const generateSearchDoc: AlgoliaSearchConfig['generateSearchDoc'] = ({ collection, doc }) => {
+const generateSearchAttributes: AlgoliaSearchConfig['generateSearchAttributes'] = ({
+  collection,
+  doc,
+}) => {
   return {
-    objectID: `${collection.slug}:${doc.id}`,
+    collection: collection.slug,
     ...doc,
   }
 }
 
+export const getObjectID = ({
+  collection,
+  doc,
+}: Pick<Parameters<CollectionAfterChangeHook>[0], 'collection' | 'doc'>) =>
+  `${collection.slug}:${doc.id}`
+
 export default function syncWithSearch(
   searchConfig: AlgoliaSearchConfig,
 ): CollectionAfterChangeHook {
-  return async args => {
+  return async (args: Parameters<CollectionAfterChangeHook>[0]) => {
     const {
       collection,
       doc,
-      // operation,
       req: { payload },
+      previousDoc,
     } = args
-
     try {
-      if (doc?._status === 'draft') {
-        // @TODO remove search result if there is no stale published version
+      if (doc?._status === 'draft' && !previousDoc) {
+        // quick early exit for first drafts
         return doc
       }
 
-      const generateSearchDocFn = searchConfig.generateSearchDoc || generateSearchDoc
+      const searchClient = createClient(searchConfig)
+      const objectID = getObjectID({ collection, doc })
 
-      const searchDoc = await generateSearchDocFn!(args)
+      // remove search results for unpublished docs
+      if (doc?._status === 'draft' && previousDoc) {
+        // distinguish between "pending change" (canonical document is still published)
+        // vs "unpublish" (canonical document is draft)
+        const publishedDoc = await payload.findByID({
+          collection: collection.slug,
+          id: doc.id,
+          draft: false,
+        })
 
-      if (!searchDoc) {
-        throw new Error('invalid searchDoc')
+        if (publishedDoc && publishedDoc._status === 'published') {
+          // ignore pending changes
+          return doc
+        } else {
+          // remove search results for unpublished
+          searchClient.deleteObject(objectID)
+          return doc
+        }
       }
 
-      const searchClient = createClient(searchConfig)
-      const objectID = `${collection.slug}:${doc.id}`
+      const generateSearchAttributesFn =
+        searchConfig.generateSearchAttributes || generateSearchAttributes
 
-      await searchClient
-        .saveObject({
-          objectID,
-          collection: collection.slug,
-          ...searchDoc,
-        })
-        .wait()
+      const searchDoc = await generateSearchAttributesFn!(args)
+
+      if (!searchDoc) {
+        // @TODO check for stale search results?
+        return doc
+        // throw new Error('invalid searchDoc')
+      }
+
+      searchClient.saveObject({
+        objectID,
+        collection: collection.slug,
+        ...searchDoc,
+      })
     } catch (error) {
       payload.logger.error({
         err: `Error syncing search for ${collection.slug} ${doc.id}: ${error}`,
