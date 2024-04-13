@@ -1,12 +1,19 @@
 import { type AlgoliaSearchOptions } from 'algoliasearch'
 import { type CollectionAfterChangeHook } from 'payload/types'
 
-export interface SearchAttributes {
-  [key: string]: any
+export interface SearchAttributes extends UnknownSearchAttributes {
   objectID?: never
 }
 
-export interface AlgoliaSearchConfig {
+export interface UnknownSearchAttributes {
+  [key: string]: any
+}
+
+export type GenerateSearchAttributes<D extends SearchAttributes = UnknownSearchAttributes> = (
+  args: Parameters<CollectionAfterChangeHook>[0],
+) => D | Promise<D> | undefined
+
+export interface AlgoliaSearchConfig<D extends SearchAttributes = UnknownSearchAttributes> {
   algolia: {
     appId: string
     apiKey: string
@@ -14,7 +21,5 @@ export interface AlgoliaSearchConfig {
     options?: AlgoliaSearchOptions
   }
   collections?: string[]
-  generateSearchAttributes?: (
-    args: Parameters<CollectionAfterChangeHook>[0],
-  ) => SearchAttributes | Promise<SearchAttributes>
+  generateSearchAttributes?: GenerateSearchAttributes<D>
 }
