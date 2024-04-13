@@ -6,6 +6,7 @@ import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { webpackBundler } from '@payloadcms/bundler-webpack'
 import { slateEditor } from '@payloadcms/richtext-slate'
 import { AlgoliaSearchPlugin } from '../../src/index'
+import VersionedExamples from './collections/VersionedExamples'
 
 export default buildConfig({
   admin: {
@@ -28,7 +29,7 @@ export default buildConfig({
     },
   },
   editor: slateEditor({}),
-  collections: [Examples, Users],
+  collections: [Examples, VersionedExamples, Users],
   typescript: {
     outputFile: path.resolve(__dirname, 'payload-types.ts'),
   },
@@ -40,7 +41,7 @@ export default buildConfig({
       app_id: process.env.ALGOLIA_APPLICATION_ID,
       api_key: process.env.ALGOLIA_ADMIN_API_KEY,
       index: process.env.ALGOLIA_INDEX,
-      collections: ['examples'],
+      collections: ['examples', 'versioned_examples'],
     }),
   ],
   db: mongooseAdapter({
