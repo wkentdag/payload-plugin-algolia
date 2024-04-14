@@ -5,8 +5,15 @@ import Examples from './collections/Examples';
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { webpackBundler } from '@payloadcms/bundler-webpack'
 import { slateEditor } from '@payloadcms/richtext-slate'
-import { AlgoliaSearchPlugin } from '../../src/index'
+import { AlgoliaSearchPlugin } from 'payload-plugin-algolia'
 import VersionedExamples from './collections/VersionedExamples'
+
+export interface SearchRecord {
+  title: string
+  text: string
+  collection: string
+  custom: 'attribute'
+}
 
 export default buildConfig({
   admin: {
@@ -44,6 +51,14 @@ export default buildConfig({
         index: process.env.ALGOLIA_INDEX,
       },
       collections: ['examples', 'versioned_examples'],
+      generateSearchAttributes: ({ doc: { title, text }, collection }): SearchRecord => {
+        return {
+          title,
+          text,
+          collection: collection.slug,
+          custom: 'attribute',
+        }
+      },
     }),
   ],
   db: mongooseAdapter({

@@ -1,12 +1,11 @@
-import type { Config } from 'payload/config'
+import type { Config, Plugin } from 'payload/config'
 
-import { onInitExtension } from './onInitExtension'
 import type { AlgoliaSearchConfig } from './types'
 import syncWithSearch from './hooks/syncWithSearch'
 import deleteFromSearch from './hooks/deleteFromSearch'
 
 export const AlgoliaSearchPlugin =
-  (searchConfig: AlgoliaSearchConfig) =>
+  (searchConfig: AlgoliaSearchConfig): Plugin =>
   (config: Config): Config => {
     const { collections } = config
 
