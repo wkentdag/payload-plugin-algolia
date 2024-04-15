@@ -2,7 +2,7 @@
 
 PayloadCMS plugin that syncs collections with Algolia search
 
-![ci status](https://github.com/github/wkentdag/payload-plugin-algolia/.github/workflows/test.yml/badge.svg)
+![ci status](https://github.com/wkentdag/payload-plugin-algolia/actions/workflows/test.yml/badge.svg)
 
 ## Installation
 
