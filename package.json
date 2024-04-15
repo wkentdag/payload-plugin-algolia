@@ -1,6 +1,6 @@
 {
   "name": "payload-plugin-algolia",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "homepage:": "https://github.comw/wkentdag/payload-plugin-algolia",
   "repository": "git@github.com:wkentdag/payload-plugin-algolia.git",
   "description": "Algolia search plugin for PayloadCMS",
