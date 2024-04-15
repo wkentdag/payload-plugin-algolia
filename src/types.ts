@@ -20,6 +20,7 @@ export interface AlgoliaSearchConfig<D extends SearchAttributes = UnknownSearchA
     index: string
     options?: AlgoliaSearchOptions
   }
+  waitForHook?: boolean
   collections?: string[]
   generateSearchAttributes?: GenerateSearchAttributes<D>
 }

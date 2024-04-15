@@ -42,18 +42,27 @@ export default function syncWithSearch(
       if (doc?._status === 'draft' && previousDoc) {
         // distinguish between "pending change" (canonical document is still published)
         // vs "unpublish" (canonical document is draft)
-        const publishedDoc = await payload.findByID({
-          collection: collection.slug,
-          id: doc.id,
-          draft: false,
-        })
+        try {
+          const publishedDoc = await payload.findByID({
+            collection: collection.slug,
+            id: doc.id,
+            draft: false,
+          })
 
-        if (publishedDoc && publishedDoc._status === 'published') {
-          // ignore pending changes
-          return doc
-        } else {
-          // remove search results for unpublished
-          searchClient.deleteObject(objectID)
+          if (publishedDoc && publishedDoc._status === 'published') {
+            // ignore pending changes
+            return doc
+          } else {
+            // remove search results for unpublished
+            const deleteOp = searchClient.deleteObject(objectID)
+
+            if (searchConfig.waitForHook === true) {
+              await deleteOp.wait()
+            }
+
+            return doc
+          }
+        } catch (error) {
           return doc
         }
       }
@@ -69,11 +78,15 @@ export default function syncWithSearch(
         // throw new Error('invalid searchDoc')
       }
 
-      searchClient.saveObject({
+      const saveOp = searchClient.saveObject({
         objectID,
         collection: collection.slug,
         ...searchDoc,
       })
+
+      if (searchConfig.waitForHook === true) {
+        await saveOp.wait()
+      }
     } catch (error) {
       payload.logger.error({
         err: `Error syncing search for ${collection.slug} ${doc.id}: ${error}`,

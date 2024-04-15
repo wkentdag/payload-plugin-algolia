@@ -51,6 +51,7 @@ export default buildConfig({
         index: process.env.ALGOLIA_INDEX,
       },
       collections: ['examples', 'versioned_examples'],
+      waitForHook: true,
       generateSearchAttributes: ({ doc: { title, text }, collection }): SearchRecord => {
         return {
           title,

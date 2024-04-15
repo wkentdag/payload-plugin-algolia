@@ -1,4 +1,4 @@
-# `payload-plugin-algolia`
+# payload-plugin-algolia
 
 PayloadCMS plugin that syncs collections with Algolia search
 
@@ -84,6 +84,12 @@ const generateSearchAttributes: GenerateSearchAtributes<
   }
 } 
 ```
+
+### `waitForHook`
+
+> `Boolean`, default = `false`
+
+Set to `true` to wait for algolia set / delete operations during the collection hooks.
 
 ## Notes
 
