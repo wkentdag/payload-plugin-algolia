@@ -5,7 +5,7 @@ import Examples from './collections/Examples';
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { webpackBundler } from '@payloadcms/bundler-webpack'
 import { slateEditor } from '@payloadcms/richtext-slate'
-import { AlgoliaSearchPlugin } from 'payload-plugin-algolia'
+import { AlgoliaSearchPlugin } from '../../src'
 import VersionedExamples from './collections/VersionedExamples'
 
 export interface SearchRecord {
