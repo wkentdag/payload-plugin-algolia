@@ -2,6 +2,8 @@
 
 PayloadCMS plugin that syncs collections with Algolia search
 
+![ci status](https://github.com/github/wkentdag/payload-plugin-algolia/.github/workflows/test.yml/badge.svg)
+
 ## Installation
 
 ```sh
@@ -46,7 +48,7 @@ By default, the plugin will pass the entire document through to Algolia, with tw
 * `objectID`: format `${collection}:${id}` eg `pages:1`
 * `collection`: the collection slug
 
-You can modify the record (except for the `objectID`) by providing a custom `generateSearchAttributes` function:
+You can modify search attributes by providing a custom `generateSearchAttributes` function:
 
 ```ts
 import { type GenerateSearchAttributes } from 'plugin-payload-algolia'

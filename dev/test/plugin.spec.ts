@@ -51,68 +51,76 @@ describe('Plugin tests', () => {
     }
   })
 
-  it('retains published index on draft update', async () => {
-    const doc = await payload.create({
-      collection: 'versioned_examples',
-      data: {
-        title: 'first draft',
-        text: 'lorem ipsum',
-        _status: 'published',
-      },
-    })
+  it(
+    'retains published index on draft update',
+    async () => {
+      const doc = await payload.create({
+        collection: 'versioned_examples',
+        data: {
+          title: 'first draft',
+          text: 'lorem ipsum',
+          _status: 'published',
+        },
+      })
 
-    expect(typeof doc.id).toBe('string')
+      expect(typeof doc.id).toBe('string')
 
-    const initialRecord = await getRecord(`versioned_examples:${doc.id}`)
-    expect(initialRecord.title).toEqual('first draft')
+      const initialRecord = await getRecord(`versioned_examples:${doc.id}`)
+      expect(initialRecord.title).toEqual('first draft')
 
-    const draftUpdate = await payload.update({
-      collection: 'versioned_examples',
-      id: doc.id,
-      draft: true,
-      data: {
-        title: 'second draft',
-      },
-    })
+      const draftUpdate = await payload.update({
+        collection: 'versioned_examples',
+        id: doc.id,
+        draft: true,
+        data: {
+          title: 'second draft',
+        },
+      })
 
-    expect(draftUpdate.id).toEqual(doc.id)
+      expect(draftUpdate.id).toEqual(doc.id)
 
-    const record = await getRecord(`versioned_examples:${doc.id}`)
-    expect(record.title).toEqual('first draft')
-  })
+      const record = await getRecord(`versioned_examples:${doc.id}`)
+      expect(record.title).toEqual('first draft')
+    },
+    10 * 1000,
+  )
 
-  it('indexes drafts on publish', async () => {
-    const doc = await payload.create({
-      collection: 'versioned_examples',
-      draft: true,
-      data: {
-        title: 'first draft',
-        text: 'content',
-      },
-    })
+  it(
+    'indexes drafts on publish',
+    async () => {
+      const doc = await payload.create({
+        collection: 'versioned_examples',
+        draft: true,
+        data: {
+          title: 'first draft',
+          text: 'content',
+        },
+      })
 
-    expect(doc._status).toBe('draft')
+      expect(doc._status).toBe('draft')
 
-    try {
-      await getRecord(`versioned_examples:${doc.id}`)
-    } catch (error) {
-      expect(error?.message).toEqual('ObjectID does not exist')
-      expect(error?.status).toEqual(404)
-    }
+      try {
+        await getRecord(`versioned_examples:${doc.id}`)
+      } catch (error) {
+        expect(error?.message).toEqual('ObjectID does not exist')
+        expect(error?.status).toEqual(404)
+      }
 
-    const updatedDoc = await payload.update({
-      collection: 'versioned_examples',
-      id: doc.id,
-      data: {
-        title: 'updated',
-        _status: 'published',
-      },
-    })
+      const updatedDoc = await payload.update({
+        collection: 'versioned_examples',
+        id: doc.id,
+        data: {
+          title: 'updated',
+          _status: 'published',
+        },
+      })
 
-    expect(updatedDoc._status).toBe('published')
-    const record = await getRecord(`versioned_examples:${doc.id}`)
-    expect(record.title).toBe('updated')
-  })
+      expect(updatedDoc._status).toBe('published')
+      const record = await getRecord(`versioned_examples:${doc.id}`)
+      expect(record.title).toBe('updated')
+    },
+    10 * 1000,
+  )
 
   it('accepts custom `getSearchAttributes`', async () => {
     const doc = await payload.create({

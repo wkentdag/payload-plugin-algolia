@@ -4,7 +4,7 @@ module.exports = {
   globalTeardown: '<rootDir>/test/globalTeardown.ts',
   testEnvironment: 'node',
   transform: {
-    '^.+\\.(t|j)sx?$': '<rootDir>/node_modules/@swc/jest',
+    '^.+\\.(t|j)sx?$': '<rootDir>/../node_modules/@swc/jest',
     // '^.+\\.(t)s?$': '<rootDir>/node_modules/@swc/jest',
   },
   moduleNameMapper: {

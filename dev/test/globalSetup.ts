@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 import { resolve } from 'path'
 
 import { start } from '../src/server'
-import { createClient } from 'payload-plugin-algolia'
+import { createClient } from '../../src'
 
 module.exports = async function () {
   dotenv.config({
