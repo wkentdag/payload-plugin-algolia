@@ -8,6 +8,12 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URI: ${{vars.DATABASE_URI}}
+      PAYLOAD_SECRET: ${{secrets.PAYLOAD_SECRET}}
+      ALGOLIA_APPLICATION_ID: ${{secrets.ALGOLIA_APPLICATION_ID}}
+      ALGOLIA_ADMIN_API_KEY: ${{secrets.ALGOLIA_ADMIN_API_KEY}}
+      ALGOLIA_INDEX: ${{secrets.ALGOLIA_INDEX}}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
