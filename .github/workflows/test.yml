@@ -22,8 +22,8 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - run: yarn install
       - run: yarn build
-      - name: Start MongoDB
-        uses: supercharge/mongodb-github-action@1.10.0
+      - name: 'Install `dev` folder deps'
+        run: cd dev && yarn install
       - run: yarn test
 
     
