@@ -1,13 +1,13 @@
 {
   "name": "payload-plugin-algolia",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "homepage:": "https://github.comw/wkentdag/payload-plugin-algolia",
   "repository": "git@github.com:wkentdag/payload-plugin-algolia.git",
   "description": "Algolia search plugin for PayloadCMS",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "engines": {
-    "node": "18"
+    "node": "18.20.2"
   },
   "keywords": [
     "payload",
@@ -21,6 +21,7 @@
     "lint": "eslint src",
     "lint:fix": "eslint --fix --ext .ts,.tsx src",
     "clean": "rimraf dist && rimraf dev/yarn.lock",
+    "prerelease": "yarn clean && yarn build && yarn test",
     "release": "release-it"
   },
   "author": "Will Kent-Daggett",
