@@ -1,4 +1,4 @@
-import { CollectionAfterChangeHook } from 'payload/types'
+import type { CollectionAfterChangeHook } from 'payload'
 
 import createClient from '../algolia'
 import { AlgoliaSearchConfig } from '../types'

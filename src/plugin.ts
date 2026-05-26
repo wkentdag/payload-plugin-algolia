@@ -1,4 +1,4 @@
-import type { Config, Plugin } from 'payload/config'
+import type { Config, Plugin } from 'payload'
 
 import type { AlgoliaSearchConfig } from './types'
 import syncWithSearch from './hooks/syncWithSearch'

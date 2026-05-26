@@ -1,4 +1,4 @@
-import { CollectionAfterDeleteHook } from 'payload/types'
+import type { CollectionAfterDeleteHook } from 'payload'
 
 import createClient from '../algolia'
 import { AlgoliaSearchConfig } from '../types'

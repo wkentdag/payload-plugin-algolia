@@ -4,6 +4,8 @@ PayloadCMS plugin that syncs collections with Algolia search
 
 ![ci status](https://github.com/wkentdag/payload-plugin-algolia/actions/workflows/test.yml/badge.svg)
 
+Requires **Payload 3.x** (`payload` peer dependency).
+
 ## Installation
 
 ```sh
@@ -17,7 +19,7 @@ At a minimum, the plugin requires Algolia credentials and a list of enabled coll
 ```ts
 // payload.config.ts
 
-import { buildConfig } from 'payload/config'
+import { buildConfig } from 'payload'
 import { AlgoliaSearchPlugin } from 'payload-plugin-algolia'
 import Pages from './collections/Pages'
 import Posts from './collections/Posts'
@@ -51,7 +53,7 @@ By default, the plugin will pass the entire document through to Algolia, with tw
 You can modify search attributes by providing a custom `generateSearchAttributes` function:
 
 ```ts
-import { type GenerateSearchAttributes } from 'plugin-payload-algolia'
+import { type GenerateSearchAttributes } from 'payload-plugin-algolia'
 
 interface PageRecord {
   title: string
@@ -62,13 +64,13 @@ interface PostRecord extends PageRecord {
   image: string
 }
 
-const generateSearchAttributes: GenerateSearchAtributes<
+const generateSearchAttributes: GenerateSearchAttributes<
   PageRecord | PostRecord
 > = async ({ doc, collection, req: { payload } }) => {
   switch (collection.slug) {
     case 'posts': {
       if (doc.featured_image) {
-        const { url } = await payload.findById({
+        const { url } = await payload.findByID({
           collection: 'media',
           id: doc.featured_image as number
         })

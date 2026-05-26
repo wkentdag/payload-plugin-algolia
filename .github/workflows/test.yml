@@ -15,15 +15,11 @@ jobs:
       ALGOLIA_ADMIN_API_KEY: ${{secrets.ALGOLIA_ADMIN_API_KEY}}
       ALGOLIA_INDEX: ${{secrets.ALGOLIA_INDEX}}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '18.20.2'
-          registry-url: 'https://registry.npmjs.org'
-      - run: yarn install
+          node-version: '20'
+          cache: 'yarn'
+      - run: yarn install --frozen-lockfile
       - run: yarn build
-      - name: 'Install `dev` folder deps'
-        run: cd dev && yarn install
       - run: yarn test
-
-    

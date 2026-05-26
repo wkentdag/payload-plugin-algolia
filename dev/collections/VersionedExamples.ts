@@ -1,5 +1,6 @@
-import { CollectionConfig } from 'payload/types'
-import Examples from './Examples'
+import type { CollectionConfig } from 'payload'
+
+import Examples from './Examples.js'
 
 const VersionedExamples: CollectionConfig = {
   ...Examples,

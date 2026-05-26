@@ -1,5 +1,5 @@
 import { type AlgoliaSearchOptions } from 'algoliasearch'
-import { type CollectionAfterChangeHook } from 'payload/types'
+import type { CollectionAfterChangeHook } from 'payload'
 
 export interface SearchAttributes extends UnknownSearchAttributes {
   objectID?: never
