@@ -13,7 +13,6 @@ export default defineConfig(() => {
   return {
     plugins: [
       tsconfigPaths({
-        projects: [path.resolve(dirname, './dev/tsconfig.json')],
         ignoreConfigErrors: true,
       }),
     ],
