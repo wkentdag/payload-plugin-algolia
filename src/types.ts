@@ -1,5 +1,7 @@
-import { type AlgoliaSearchOptions } from 'algoliasearch'
+import type { algoliasearch } from 'algoliasearch'
 import type { CollectionAfterChangeHook } from 'payload'
+
+export type AlgoliaClientOptions = NonNullable<Parameters<typeof algoliasearch>[2]>
 
 export interface SearchAttributes extends UnknownSearchAttributes {
   objectID?: never
@@ -18,7 +20,7 @@ export interface AlgoliaSearchConfig<D extends SearchAttributes = UnknownSearchA
     appId: string
     apiKey: string
     index: string
-    options?: AlgoliaSearchOptions
+    options?: AlgoliaClientOptions
   }
   waitForHook?: boolean
   collections?: string[]
