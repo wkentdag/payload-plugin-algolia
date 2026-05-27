@@ -30,7 +30,8 @@ export default function syncWithSearch(
       previousDoc,
     } = args
     try {
-      if (doc?._status === 'draft' && !previousDoc) {
+      const hasPreviousDoc = previousDoc?.hasOwnProperty('id')
+      if (doc?._status === 'draft' && !hasPreviousDoc) {
         // quick early exit for first drafts
         return doc
       }
@@ -39,7 +40,7 @@ export default function syncWithSearch(
       const objectID = getObjectID({ collection, doc })
 
       // remove search results for unpublished docs
-      if (doc?._status === 'draft' && previousDoc) {
+      if (doc?._status === 'draft' && hasPreviousDoc) {
         // distinguish between "pending change" (canonical document is still published)
         // vs "unpublish" (canonical document is draft)
         try {
