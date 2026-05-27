@@ -26,10 +26,12 @@ export interface SearchRecord {
 }
 
 const buildConfigWithMemoryDB = async () => {
-  if (process.env.NODE_ENV === 'test') {
+  // Use DATABASE_URI from dev/.env when set (same as pnpm dev). In-memory repl set is a
+  // fallback for CI/local runs without Mongo; count: 1 is enough for Payload drafts/transactions.
+  if (process.env.NODE_ENV === 'test' && !process.env.DATABASE_URI) {
     const memoryDB = await MongoMemoryReplSet.create({
       replSet: {
-        count: 3,
+        count: 1,
         dbName: 'payloadmemory',
       },
     })

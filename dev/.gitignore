@@ -1,6 +1,7 @@
-build
-dist
-/media
+.next
 node_modules
 .DS_Store
 .env
+app/(payload)/admin/importMap.js
+payload-types.ts
+next-env.d.ts

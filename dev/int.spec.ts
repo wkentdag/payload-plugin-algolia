@@ -9,15 +9,58 @@ import type { SearchRecord } from './payload.config.js'
 
 const waitFor = (time: number) => new Promise((resolve) => setTimeout(resolve, time))
 
+const pollIntervalMs = 200
+
 let payload: Payload
 let algolia: ReturnType<typeof createClient>
 
-const getRecord = async (id: string, wait = 0) => {
-  if (wait) {
-    await waitFor(wait)
+/** Poll until the Algolia record exists. */
+const getRecord = async (objectID: string, timeoutMs = 5000) => {
+  const deadline = Date.now() + timeoutMs
+  let lastError: unknown
+
+  while (Date.now() < deadline) {
+    try {
+      return await algolia.client.getObject<SearchRecord>({
+        indexName: algolia.indexName,
+        objectID,
+      })
+    } catch (error: unknown) {
+      lastError = error
+      const err = error as { status?: number }
+      if (err.status === 404) {
+        await waitFor(pollIntervalMs)
+        continue
+      }
+      throw error
+    }
   }
 
-  return algolia.client.getObject<SearchRecord>({ indexName: algolia.indexName, objectID: id })
+  if (lastError instanceof Error) {
+    throw lastError
+  }
+
+  throw new Error(`timed out waiting for Algolia record ${objectID}`)
+}
+
+/** Poll until the Algolia record is gone (404). Fails immediately if the record exists. */
+const expectNoRecord = async (objectID: string, timeoutMs = 5000) => {
+  const deadline = Date.now() + timeoutMs
+
+  while (Date.now() < deadline) {
+    try {
+      await algolia.client.getObject({ indexName: algolia.indexName, objectID })
+      expect.fail('expected Algolia record to be missing')
+    } catch (error: unknown) {
+      const err = error as { status?: number; message?: string }
+      if (err.status === 404) {
+        return
+      }
+      throw error
+    }
+  }
+
+  throw new Error(`timed out waiting for Algolia record ${objectID} to be absent`)
 }
 
 beforeAll(async () => {
@@ -30,7 +73,9 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  await payload.destroy()
+  if (payload) {
+    await payload.destroy()
+  }
 })
 
 describe('AlgoliaSearchPlugin', () => {
@@ -61,19 +106,13 @@ describe('AlgoliaSearchPlugin', () => {
 
     expect(typeof doc.id).toBe('string')
 
-    try {
-      await getRecord(`versioned_examples:${doc.id}`)
-      expect.fail('expected Algolia record to be missing')
-    } catch (error: unknown) {
-      const err = error as { message?: string; status?: number }
-      expect(err.message).toEqual('ObjectID does not exist')
-      expect(err.status).toEqual(404)
-    }
+    await expectNoRecord(`versioned_examples:${doc.id}`)
   })
 
   test('retains published index on draft update', async () => {
     const doc = await payload.create({
       collection: 'versioned_examples',
+      draft: false,
       data: {
         title: 'first draft',
         text: 'lorem ipsum',
@@ -82,6 +121,7 @@ describe('AlgoliaSearchPlugin', () => {
     })
 
     expect(typeof doc.id).toBe('string')
+    expect(doc._status).toBe('published')
 
     const initialRecord = await getRecord(`versioned_examples:${doc.id}`)
     expect(initialRecord.title).toEqual('first draft')
@@ -113,18 +153,12 @@ describe('AlgoliaSearchPlugin', () => {
 
     expect(doc._status).toBe('draft')
 
-    try {
-      await getRecord(`versioned_examples:${doc.id}`)
-      expect.fail('expected Algolia record to be missing')
-    } catch (error: unknown) {
-      const err = error as { message?: string; status?: number }
-      expect(err.message).toEqual('ObjectID does not exist')
-      expect(err.status).toEqual(404)
-    }
+    await expectNoRecord(`versioned_examples:${doc.id}`)
 
     const updatedDoc = await payload.update({
       collection: 'versioned_examples',
       id: doc.id,
+      draft: false,
       data: {
         title: 'updated',
         _status: 'published',
