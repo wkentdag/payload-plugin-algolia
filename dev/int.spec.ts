@@ -1,24 +1,23 @@
-import type { SearchIndex } from 'algoliasearch'
 import type { Payload } from 'payload'
 
 import config from '@payload-config'
 import { getPayload } from 'payload'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
-import { createClient } from '../src/algolia.js'
+import createClient from '../src/algolia.js'
 import type { SearchRecord } from './payload.config.js'
 
 const waitFor = (time: number) => new Promise((resolve) => setTimeout(resolve, time))
 
 let payload: Payload
-let algolia: SearchIndex
+let algolia: ReturnType<typeof createClient>
 
 const getRecord = async (id: string, wait = 0) => {
   if (wait) {
     await waitFor(wait)
   }
 
-  return algolia.getObject<SearchRecord>(id)
+  return algolia.client.getObject<SearchRecord>({ indexName: algolia.indexName, objectID: id })
 }
 
 beforeAll(async () => {

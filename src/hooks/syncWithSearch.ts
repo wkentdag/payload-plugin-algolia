@@ -1,7 +1,7 @@
 import type { CollectionAfterChangeHook } from 'payload'
 
-import createClient from '../algolia'
-import { AlgoliaSearchConfig } from '../types'
+import createClient from '../algolia.js'
+import type { AlgoliaSearchConfig } from '../types.js'
 
 const generateSearchAttributes: AlgoliaSearchConfig['generateSearchAttributes'] = ({
   collection,
@@ -35,7 +35,7 @@ export default function syncWithSearch(
         return doc
       }
 
-      const searchClient = createClient(searchConfig.algolia)
+      const { client, indexName } = createClient(searchConfig.algolia)
       const objectID = getObjectID({ collection, doc })
 
       // remove search results for unpublished docs
@@ -54,10 +54,10 @@ export default function syncWithSearch(
             return doc
           } else {
             // remove search results for unpublished
-            const deleteOp = searchClient.deleteObject(objectID)
+            const deleteOp = client.deleteObject({ indexName, objectID })
 
             if (searchConfig.waitForHook === true) {
-              await deleteOp.wait()
+              await deleteOp
             }
 
             return doc
@@ -78,14 +78,17 @@ export default function syncWithSearch(
         // throw new Error('invalid searchDoc')
       }
 
-      const saveOp = searchClient.saveObject({
-        objectID,
-        collection: collection.slug,
-        ...searchDoc,
+      const saveOp = client.saveObject({
+        indexName,
+        body: {
+          objectID,
+          collection: collection.slug,
+          ...searchDoc,
+        },
       })
 
       if (searchConfig.waitForHook === true) {
-        await saveOp.wait()
+        await saveOp
       }
     } catch (error) {
       payload.logger.error({

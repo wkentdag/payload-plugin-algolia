@@ -1,5 +1,3 @@
-import createClient from './algolia'
-
-export { AlgoliaSearchPlugin } from './plugin'
-export { createClient }
-export type { AlgoliaSearchConfig } from './types'
+export { AlgoliaSearchPlugin } from './plugin.js'
+export { default as createClient } from './algolia.js'
+export type { AlgoliaSearchConfig } from './types.js'

@@ -1,8 +1,8 @@
 import type { Config, Plugin } from 'payload'
 
-import type { AlgoliaSearchConfig } from './types'
-import syncWithSearch from './hooks/syncWithSearch'
-import deleteFromSearch from './hooks/deleteFromSearch'
+import type { AlgoliaSearchConfig } from './types.js'
+import syncWithSearch from './hooks/syncWithSearch.js'
+import deleteFromSearch from './hooks/deleteFromSearch.js'
 
 export const AlgoliaSearchPlugin =
   (searchConfig: AlgoliaSearchConfig): Plugin =>
