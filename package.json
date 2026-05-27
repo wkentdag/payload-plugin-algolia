@@ -40,6 +40,7 @@
     "clean": "rimraf dist",
     "dev": "cross-env PAYLOAD_CONFIG_PATH=./dev/payload.config.ts next dev dev --turbo",
     "dev:payload": "cross-env PAYLOAD_CONFIG_PATH=./dev/payload.config.ts payload",
+    "format": "prettier --write .",
     "generate:types": "cross-env PAYLOAD_CONFIG_PATH=./dev/payload.config.ts payload generate:types",
     "generate:importMap": "cross-env PAYLOAD_CONFIG_PATH=./dev/payload.config.ts payload generate:importMap",
     "lint": "eslint",

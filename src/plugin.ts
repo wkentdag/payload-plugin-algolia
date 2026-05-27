@@ -14,7 +14,7 @@ export const AlgoliaSearchPlugin =
       const enabledCollections = searchConfig.collections || []
 
       const collectionsWithSearchHooks = collections
-        ?.map(collection => {
+        ?.map((collection) => {
           const { hooks: existingHooks } = collection
           const isEnabled = enabledCollections.indexOf(collection.slug) > -1
 

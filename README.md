@@ -31,14 +31,13 @@ export default buildConfig({
       algolia: {
         appId: process.env.ALGOLIA_APP_ID,
         apiKey: process.env.ALGOLIA_ADMIN_API_KEY,
-        index: process.env.ALGOLIA_INDEX
+        index: process.env.ALGOLIA_INDEX,
       },
-      collections: ['pages', 'posts']
-    })
-  ]
+      collections: ['pages', 'posts'],
+    }),
+  ],
   // ...more config
 })
-
 ```
 
 ## Options
@@ -47,8 +46,8 @@ export default buildConfig({
 
 By default, the plugin will pass the entire document through to Algolia, with two appended keys:
 
-* `objectID`: format `${collection}:${id}` eg `pages:1`
-* `collection`: the collection slug
+- `objectID`: format `${collection}:${id}` eg `pages:1`
+- `collection`: the collection slug
 
 You can modify search attributes by providing a custom `generateSearchAttributes` function:
 
@@ -64,15 +63,17 @@ interface PostRecord extends PageRecord {
   image: string
 }
 
-const generateSearchAttributes: GenerateSearchAttributes<
-  PageRecord | PostRecord
-> = async ({ doc, collection, req: { payload } }) => {
+const generateSearchAttributes: GenerateSearchAttributes<PageRecord | PostRecord> = async ({
+  doc,
+  collection,
+  req: { payload },
+}) => {
   switch (collection.slug) {
     case 'posts': {
       if (doc.featured_image) {
         const { url } = await payload.findByID({
           collection: 'media',
-          id: doc.featured_image as number
+          id: doc.featured_image as number,
         })
 
         return {
@@ -86,7 +87,7 @@ const generateSearchAttributes: GenerateSearchAttributes<
     default:
       return doc
   }
-} 
+}
 ```
 
 ### `waitForHook`
@@ -100,6 +101,7 @@ Set to `true` to wait for algolia set / delete operations during the collection 
 > The current scope of the plugin is quite limited. PRs welcome!
 
 ### Drafts
+
 Drafts are not indexed. If a document is unpublished, it gets removed from search results. Otherwise, draft updates to a published document have no effect.
 
 ### Globals

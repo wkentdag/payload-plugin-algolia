@@ -1,0 +1,8 @@
+node_modules
+dist
+build
+.next
+.turbo
+.env
+.env.*
+pnpm-lock.yaml
