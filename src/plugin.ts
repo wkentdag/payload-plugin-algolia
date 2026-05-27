@@ -1,8 +1,9 @@
-import type { Config, Plugin } from 'payload/config'
+import type { Config, Plugin } from 'payload'
 
-import type { AlgoliaSearchConfig } from './types'
-import syncWithSearch from './hooks/syncWithSearch'
-import deleteFromSearch from './hooks/deleteFromSearch'
+import type { AlgoliaSearchConfig } from './types.js'
+
+import deleteFromSearch from './hooks/deleteFromSearch.js'
+import syncWithSearch from './hooks/syncWithSearch.js'
 
 export const AlgoliaSearchPlugin =
   (searchConfig: AlgoliaSearchConfig): Plugin =>
@@ -13,7 +14,7 @@ export const AlgoliaSearchPlugin =
       const enabledCollections = searchConfig.collections || []
 
       const collectionsWithSearchHooks = collections
-        ?.map(collection => {
+        ?.map((collection) => {
           const { hooks: existingHooks } = collection
           const isEnabled = enabledCollections.indexOf(collection.slug) > -1
 

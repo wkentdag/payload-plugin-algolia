@@ -1,34 +1,25 @@
 {
-  "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "strict": false,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "jsx": "react",
-    "paths": {
-      "payload/generated-types": [
-        "./src/payload-types.ts"
-      ]
-    }
-  },
+  "extends": "../tsconfig.json",
+  "exclude": [],
   "include": [
-    "src"
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.mjs",
+    "**/*.cjs",
+    "**/*.ts",
+    "**/*.tsx",
+    "../src/**/*.ts",
+    "next.config.mjs",
+    ".next/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build"
-  ],
-  "ts-node": {
-    "transpileOnly": true,
-    "swc": true
+  "compilerOptions": {
+    "paths": {
+      "@payload-config": ["./payload.config.ts"],
+      "payload-plugin-algolia": ["../src/index.ts"]
+    },
+    "noEmit": true,
+    "emitDeclarationOnly": false,
+    "jsx": "preserve",
+    "plugins": [{ "name": "next" }]
   }
 }

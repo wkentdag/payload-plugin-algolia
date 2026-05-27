@@ -1,7 +1,8 @@
-import { CollectionAfterChangeHook } from 'payload/types'
+import type { CollectionAfterChangeHook } from 'payload'
 
-import createClient from '../algolia'
-import { AlgoliaSearchConfig } from '../types'
+import type { AlgoliaSearchConfig } from '../types.js'
+
+import createClient from '../algolia.js'
 
 const generateSearchAttributes: AlgoliaSearchConfig['generateSearchAttributes'] = ({
   collection,
@@ -26,26 +27,28 @@ export default function syncWithSearch(
     const {
       collection,
       doc,
-      req: { payload },
       previousDoc,
+      req: { payload },
     } = args
     try {
-      if (doc?._status === 'draft' && !previousDoc) {
+      // eslint-disable-next-line no-prototype-builtins
+      const hasPreviousDoc = previousDoc?.hasOwnProperty('id')
+      if (doc?._status === 'draft' && !hasPreviousDoc) {
         // quick early exit for first drafts
         return doc
       }
 
-      const searchClient = createClient(searchConfig.algolia)
+      const { client, indexName } = createClient(searchConfig.algolia)
       const objectID = getObjectID({ collection, doc })
 
       // remove search results for unpublished docs
-      if (doc?._status === 'draft' && previousDoc) {
+      if (doc?._status === 'draft' && hasPreviousDoc) {
         // distinguish between "pending change" (canonical document is still published)
         // vs "unpublish" (canonical document is draft)
         try {
           const publishedDoc = await payload.findByID({
-            collection: collection.slug,
             id: doc.id,
+            collection: collection.slug,
             draft: false,
           })
 
@@ -54,10 +57,10 @@ export default function syncWithSearch(
             return doc
           } else {
             // remove search results for unpublished
-            const deleteOp = searchClient.deleteObject(objectID)
+            const deleteOp = client.deleteObject({ indexName, objectID })
 
             if (searchConfig.waitForHook === true) {
-              await deleteOp.wait()
+              await deleteOp
             }
 
             return doc
@@ -78,14 +81,17 @@ export default function syncWithSearch(
         // throw new Error('invalid searchDoc')
       }
 
-      const saveOp = searchClient.saveObject({
-        objectID,
-        collection: collection.slug,
-        ...searchDoc,
+      const saveOp = client.saveObject({
+        body: {
+          collection: collection.slug,
+          objectID,
+          ...searchDoc,
+        },
+        indexName,
       })
 
       if (searchConfig.waitForHook === true) {
-        await saveOp.wait()
+        await saveOp
       }
     } catch (error) {
       payload.logger.error({
