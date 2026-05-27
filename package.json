@@ -45,12 +45,16 @@
     "generate:importMap": "cross-env PAYLOAD_CONFIG_PATH=./dev/payload.config.ts payload generate:importMap",
     "lint": "eslint",
     "lint:fix": "eslint ./src --fix",
+    "prepare": "pnpm exec simple-git-hooks",
     "prerelease": "pnpm clean && pnpm build && pnpm test",
     "release": "release-it",
     "test": "cross-env NODE_ENV=test vitest run --config ./vitest.config.js"
   },
   "author": "Will Kent-Daggett",
   "license": "MIT",
+  "simple-git-hooks": {
+    "pre-commit": "pnpm exec lint-staged"
+  },
   "peerDependencies": {
     "payload": "^3.0.0"
   },
@@ -71,6 +75,7 @@
     "cross-env": "7.0.3",
     "eslint": "9.23.0",
     "eslint-config-next": "16.2.6",
+    "lint-staged": "17.0.5",
     "mongodb-memory-server": "10.1.4",
     "next": "16.2.6",
     "payload": "3.85.0",
@@ -80,6 +85,7 @@
     "release-it": "20.0.1",
     "rimraf": "3.0.2",
     "sharp": "0.34.2",
+    "simple-git-hooks": "2.13.1",
     "typescript": "5.7.3",
     "vite-tsconfig-paths": "6.0.5",
     "vitest": "4.0.18"
