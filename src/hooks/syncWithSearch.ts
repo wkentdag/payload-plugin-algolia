@@ -1,7 +1,8 @@
 import type { CollectionAfterChangeHook } from 'payload'
 
-import createClient from '../algolia.js'
 import type { AlgoliaSearchConfig } from '../types.js'
+
+import createClient from '../algolia.js'
 
 const generateSearchAttributes: AlgoliaSearchConfig['generateSearchAttributes'] = ({
   collection,
@@ -26,10 +27,11 @@ export default function syncWithSearch(
     const {
       collection,
       doc,
-      req: { payload },
       previousDoc,
+      req: { payload },
     } = args
     try {
+      // eslint-disable-next-line no-prototype-builtins
       const hasPreviousDoc = previousDoc?.hasOwnProperty('id')
       if (doc?._status === 'draft' && !hasPreviousDoc) {
         // quick early exit for first drafts
@@ -45,8 +47,8 @@ export default function syncWithSearch(
         // vs "unpublish" (canonical document is draft)
         try {
           const publishedDoc = await payload.findByID({
-            collection: collection.slug,
             id: doc.id,
+            collection: collection.slug,
             draft: false,
           })
 
@@ -80,12 +82,12 @@ export default function syncWithSearch(
       }
 
       const saveOp = client.saveObject({
-        indexName,
         body: {
-          objectID,
           collection: collection.slug,
+          objectID,
           ...searchDoc,
         },
+        indexName,
       })
 
       if (searchConfig.waitForHook === true) {

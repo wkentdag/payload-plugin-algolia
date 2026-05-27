@@ -17,12 +17,12 @@ export type GenerateSearchAttributes<D extends SearchAttributes = UnknownSearchA
 
 export interface AlgoliaSearchConfig<D extends SearchAttributes = UnknownSearchAttributes> {
   algolia: {
-    appId: string
     apiKey: string
+    appId: string
     index: string
     options?: AlgoliaClientOptions
   }
-  waitForHook?: boolean
   collections?: string[]
   generateSearchAttributes?: GenerateSearchAttributes<D>
+  waitForHook?: boolean
 }
