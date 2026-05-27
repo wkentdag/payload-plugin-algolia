@@ -14,6 +14,15 @@ const pollIntervalMs = 200
 let payload: Payload
 let algolia: ReturnType<typeof createClient>
 
+/** Object IDs we may have indexed — deleted in afterAll. */
+const createdObjectIDs: string[] = []
+
+const objectID = (collection: string, id: string | number) => {
+  const oid = `${collection}:${id}`
+  createdObjectIDs.push(oid)
+  return oid
+}
+
 /** Poll until the Algolia record exists. */
 const getRecord = async (objectID: string, timeoutMs = 5000) => {
   const deadline = Date.now() + timeoutMs
@@ -73,6 +82,11 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  if (algolia && createdObjectIDs.length > 0) {
+    const objectIDs = [...new Set(createdObjectIDs)]
+    await algolia.client.deleteObjects({ indexName: algolia.indexName, objectIDs })
+  }
+
   if (payload) {
     await payload.destroy()
   }
@@ -90,7 +104,7 @@ describe('AlgoliaSearchPlugin', () => {
 
     expect(typeof doc1.id).toBe('string')
 
-    const record = await getRecord(`examples:${doc1.id}`)
+    const record = await getRecord(objectID('examples', doc1.id))
     expect(record).toHaveProperty('title')
   })
 
@@ -106,7 +120,7 @@ describe('AlgoliaSearchPlugin', () => {
 
     expect(typeof doc.id).toBe('string')
 
-    await expectNoRecord(`versioned_examples:${doc.id}`)
+    await expectNoRecord(objectID('versioned_examples', doc.id))
   })
 
   test('retains published index on draft update', async () => {
@@ -123,7 +137,9 @@ describe('AlgoliaSearchPlugin', () => {
     expect(typeof doc.id).toBe('string')
     expect(doc._status).toBe('published')
 
-    const initialRecord = await getRecord(`versioned_examples:${doc.id}`)
+    const id = objectID('versioned_examples', doc.id)
+
+    const initialRecord = await getRecord(id)
     expect(initialRecord.title).toEqual('first draft')
 
     const draftUpdate = await payload.update({
@@ -137,7 +153,7 @@ describe('AlgoliaSearchPlugin', () => {
 
     expect(draftUpdate.id).toEqual(doc.id)
 
-    const record = await getRecord(`versioned_examples:${doc.id}`)
+    const record = await getRecord(id)
     expect(record.title).toEqual('first draft')
   }, 10_000)
 
@@ -153,7 +169,9 @@ describe('AlgoliaSearchPlugin', () => {
 
     expect(doc._status).toBe('draft')
 
-    await expectNoRecord(`versioned_examples:${doc.id}`)
+    const id = objectID('versioned_examples', doc.id)
+
+    await expectNoRecord(id)
 
     const updatedDoc = await payload.update({
       collection: 'versioned_examples',
@@ -166,7 +184,7 @@ describe('AlgoliaSearchPlugin', () => {
     })
 
     expect(updatedDoc._status).toBe('published')
-    const record = await getRecord(`versioned_examples:${doc.id}`)
+    const record = await getRecord(id)
     expect(record.title).toBe('updated')
   }, 10_000)
 
@@ -179,7 +197,7 @@ describe('AlgoliaSearchPlugin', () => {
       },
     })
 
-    const record = await getRecord(`examples:${doc.id}`)
+    const record = await getRecord(objectID('examples', doc.id))
     expect(record.custom).toBe('attribute')
   })
 })
