@@ -12,7 +12,13 @@ export default function deleteFromSearch(
       const { client, indexName } = createClient(searchConfig.algolia)
       const objectID = getObjectID({ collection, doc })
 
-      client.deleteObject({ indexName, objectID })
+      const deleteOp = client.deleteObject({ indexName, objectID })
+
+      if (searchConfig.waitForHook === true) {
+        await deleteOp
+      }
+
+      return doc
     } catch (error) {
       payload.logger.error({
         err: `Error deleting search for ${collection.slug} ${doc.id}: ${error}`,
