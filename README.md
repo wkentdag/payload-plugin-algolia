@@ -106,8 +106,13 @@ Drafts are not indexed. If a document is unpublished, it gets removed from searc
 
 ### Globals
 
-Globals are not supported for indexing.
+Globals are not currently supported for indexing.
 
 ### Algolia search config
 
 The internal Algolia client accepts [all options](https://github.com/algolia/algoliasearch-client-javascript/blob/master/packages/algoliasearch/src/types/AlgoliaSearchOptions.ts). Beyond that, the rest of the setup for a typical Algolia configuration is outside the scope of the plugin (setting search attributes and facets, etc).
+
+
+## Contributing
+
+After cloning the repo and installing dependencies, run `pnpm exec simple-git-hooks` to setup automatic pre-commit linting.
