@@ -17,7 +17,7 @@ let algolia: ReturnType<typeof createClient>
 /** Object IDs we may have indexed — deleted in afterAll. */
 const createdObjectIDs: string[] = []
 
-const objectID = (collection: string, id: string | number) => {
+const objectID = (collection: string, id: number | string) => {
   const oid = `${collection}:${id}`
   createdObjectIDs.push(oid)
   return oid
@@ -52,14 +52,14 @@ const getRecord = async (objectID: string, timeoutMs = 5000) => {
   throw new Error(`timed out waiting for Algolia record ${objectID}`)
 }
 
-/** Poll until the Algolia record is gone (404). Fails immediately if the record exists. */
+/** Poll until the Algolia record is gone (404). */
 const expectNoRecord = async (objectID: string, timeoutMs = 5000) => {
   const deadline = Date.now() + timeoutMs
 
   while (Date.now() < deadline) {
     try {
       await algolia.client.getObject({ indexName: algolia.indexName, objectID })
-      expect.fail('expected Algolia record to be missing')
+      await waitFor(pollIntervalMs)
     } catch (error: unknown) {
       const err = error as { status?: number; message?: string }
       if (err.status === 404) {
@@ -186,6 +186,39 @@ describe('AlgoliaSearchPlugin', () => {
     expect(updatedDoc._status).toBe('published')
     const record = await getRecord(id)
     expect(record.title).toBe('updated')
+  }, 10_000)
+
+  test('removes documents from search on unpublish', async () => {
+    const doc = await payload.create({
+      collection: 'versioned_examples',
+      draft: false,
+      data: {
+        title: 'published article',
+        text: 'content',
+        _status: 'published',
+      },
+    })
+
+    expect(doc._status).toBe('published')
+
+    const id = objectID('versioned_examples', doc.id)
+
+    const record = await getRecord(id)
+    expect(record.title).toBe('published article')
+
+    const unpublishedDoc = await payload.update({
+      collection: 'versioned_examples',
+      id: doc.id,
+      draft: false,
+      data: {
+        _status: 'draft',
+        title: 'unpublished article',
+      },
+    })
+
+    expect(unpublishedDoc._status).toBe('draft')
+    expect(unpublishedDoc.title).toBe('unpublished article')
+    await expectNoRecord(id)
   }, 10_000)
 
   test('accepts custom generateSearchAttributes', async () => {
