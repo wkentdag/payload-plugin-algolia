@@ -9,7 +9,11 @@ export default function createClient({
   options,
 }: AlgoliaSearchConfig['algolia']) {
   if (!appId || !apiKey || !index) {
-    throw new Error(`[payload-plugin-algolia] missing required Algolia creds`)
+    const missing = [!appId && 'appId', !apiKey && 'apiKey', !index && 'index'].filter(Boolean)
+
+    throw new Error(
+      `[payload-plugin-algolia] missing required Algolia config: ${missing.join(', ')}`,
+    )
   }
   const client = algoliasearch(appId, apiKey, options)
   return { client, indexName: index }
