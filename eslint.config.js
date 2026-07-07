@@ -26,6 +26,9 @@ export default [
   {
     rules: {
       'no-restricted-exports': 'off',
+      'perfectionist/sort-objects': 'off',
+      'perfectionist/sort-imports': 'off',
+      'perfectionist/sort-object-types': 'off',
     },
   },
   {

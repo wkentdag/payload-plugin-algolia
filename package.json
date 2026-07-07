@@ -45,7 +45,6 @@
     "generate:importMap": "cross-env PAYLOAD_CONFIG_PATH=./dev/payload.config.ts payload generate:importMap",
     "lint": "eslint",
     "lint:fix": "eslint ./src --fix",
-    "prepare": "pnpm exec simple-git-hooks",
     "prerelease": "pnpm clean && pnpm build && pnpm test",
     "release": "release-it",
     "test": "cross-env NODE_ENV=test vitest run --config ./vitest.config.js"
