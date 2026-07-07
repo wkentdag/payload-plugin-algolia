@@ -24,12 +24,8 @@ export default function syncWithSearch(
   searchConfig: AlgoliaSearchConfig,
 ): CollectionAfterChangeHook {
   return async (args: Parameters<CollectionAfterChangeHook>[0]) => {
-    const {
-      collection,
-      doc,
-      previousDoc,
-      req: { payload },
-    } = args
+    const { collection, doc, previousDoc, req } = args
+    const { payload } = req
     try {
       // eslint-disable-next-line no-prototype-builtins
       const hasPreviousDoc = previousDoc?.hasOwnProperty('id')
@@ -50,6 +46,7 @@ export default function syncWithSearch(
             id: doc.id,
             collection: collection.slug,
             draft: false,
+            req,
           })
 
           if (publishedDoc && publishedDoc._status === 'published') {
